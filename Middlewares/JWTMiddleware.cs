@@ -38,16 +38,18 @@ namespace JWTAuth_Validation.Middleware
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidIssuer = _configuration["JWT:Issuer"],
+                    ValidAudience = _configuration["JWT:Audience"],
+                    // ValidateLifetime = true,
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                    // ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
