@@ -38,29 +38,29 @@ namespace JWTAuth_Validation.Middleware
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
+                var Key = Encoding.UTF8.GetBytes(_configuration["JWT:Key"]);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
                     ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
                     ValidIssuer = _configuration["JWT:Issuer"],
                     ValidAudience = _configuration["JWT:Audience"],
-                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Key)
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                     // ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
+                Console.WriteLine(ObjectDumper.Dump(validatedToken));
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+                var accountId = jwtToken.Claims.First(x => x.Type == "unique_name").Value;
 
                 // attach account to context on successful jwt validation
                 // context.Items["User"] = _userService.GetUserDetails();
             }
             catch (Exception e)
             {
-
                 Console.WriteLine($"Token Validation Failed!\n");
                 // do nothing if jwt validation fails
                 // account is not attached to context so request won't have access to secure routes
