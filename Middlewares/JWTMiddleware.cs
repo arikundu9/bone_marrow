@@ -25,10 +25,10 @@ namespace JWTAuth_Validation.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            // var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-            if (token != null)
-                attachAccountToContext(context, token);
+            // if (token != null)
+            //     attachAccountToContext(context, token);
 
             await _next(context);
         }
@@ -38,15 +38,16 @@ namespace JWTAuth_Validation.Middleware
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
                     ValidateAudience = true,
+                    ValidateLifetime = true,
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                    ClockSkew = TimeSpan.Zero
+                    // ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
@@ -55,9 +56,9 @@ namespace JWTAuth_Validation.Middleware
                 // attach account to context on successful jwt validation
                 // context.Items["User"] = _userService.GetUserDetails();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                
+
                 Console.WriteLine($"Token Validation Failed!\n");
                 // do nothing if jwt validation fails
                 // account is not attached to context so request won't have access to secure routes
