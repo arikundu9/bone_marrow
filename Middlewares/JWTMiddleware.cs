@@ -51,11 +51,11 @@ namespace JWTAuth_Validation.Middleware
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                     // ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
-                Console.WriteLine(ObjectDumper.Dump(validatedToken));
+                // Console.WriteLine(ObjectDumper.Dump(validatedToken));
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var accountId = jwtToken.Claims.First(x => x.Type == "unique_name").Value;
-
+                Console.WriteLine(accountId);
                 // attach account to context on successful jwt validation
                 // context.Items["User"] = _userService.GetUserDetails();
             }
